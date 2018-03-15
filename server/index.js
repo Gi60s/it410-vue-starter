@@ -1,6 +1,9 @@
 'use strict';
+const bodyParser    = require('body-parser');
 const config        = require('../config');
 const express       = require('express');
+const path          = require('path');
+const userRouter    = require('./router/users');
 
 /**
  * Questions:
@@ -18,8 +21,20 @@ const express       = require('express');
 // create the express app
 const app = express();
 
+app.use('/api/users', bodyParser.json(), userRouter);
+
 // serve index.html and static files
 app.use(express.static(config.build.dest));
+
+// make HTML5 routes work
+app.use((req, res, next) => {
+    if (req.method === 'GET') {
+        const indexPath = path.resolve(config.build.dest, 'index.html');
+        res.sendFile(indexPath);
+    } else {
+        next();
+    }
+});
 
 // start listening for requests
 const listener = app.listen(config.server.port, function(err) {
