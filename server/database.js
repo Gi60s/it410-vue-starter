@@ -2,12 +2,12 @@
 const MongoClient = require('mongodb').MongoClient;
 
 module.exports = function(dbName) {
-    const promise = MongoClient.connect('mongodb://localhost:27017/' + dbName);
+    const promise = MongoClient.connect('mongodb://localhost:27017/')
+        .then(client => client.db(dbName));
     return async function dbExec(callback) {
-        const conn = await promise;
-        const collection = conn.collection('users');
+        const db = await promise;
+        const collection = db.collection('users');
         const data = await callback(collection);
-        conn.close();
         return data;
     }
 }
